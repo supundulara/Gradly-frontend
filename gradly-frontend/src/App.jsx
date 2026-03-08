@@ -3,15 +3,27 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Feed from './pages/Feed';
+import Jobs from './pages/Jobs';
+import JobDetail from './pages/JobDetail';
+import CreateJob from './pages/CreateJob';
+import Applications from './pages/Applications';
 
-// Protected route wrapper
+// Must be authenticated
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   return children;
 }
 
-// Public route – redirect to feed if already logged in
+// Must be authenticated AND have the right role
+function RoleRoute({ children, allowed }) {
+  const { isAuthenticated, role } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (role && !allowed.includes(role)) return <Navigate to="/jobs" replace />;
+  return children;
+}
+
+// Redirect logged-in users away from auth pages
 function PublicRoute({ children }) {
   const { isAuthenticated } = useAuth();
   if (isAuthenticated) return <Navigate to="/feed" replace />;
@@ -23,30 +35,32 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<Navigate to="/feed" replace />} />
 
+      {/* Auth pages */}
+      <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+      <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+
+      {/* Social feed */}
+      <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+
+      {/* Jobs module */}
+      <Route path="/jobs" element={<ProtectedRoute><Jobs /></ProtectedRoute>} />
+      <Route path="/jobs/:jobId" element={<ProtectedRoute><JobDetail /></ProtectedRoute>} />
       <Route
-        path="/login"
+        path="/jobs/create"
         element={
-          <PublicRoute>
-            <Login />
-          </PublicRoute>
+          <RoleRoute allowed={['alumni', 'admin']}>
+            <CreateJob />
+          </RoleRoute>
         }
       />
 
+      {/* Applications (student + alumni only) */}
       <Route
-        path="/register"
+        path="/applications"
         element={
-          <PublicRoute>
-            <Register />
-          </PublicRoute>
-        }
-      />
-
-      <Route
-        path="/feed"
-        element={
-          <ProtectedRoute>
-            <Feed />
-          </ProtectedRoute>
+          <RoleRoute allowed={['student', 'alumni']}>
+            <Applications />
+          </RoleRoute>
         }
       />
 
