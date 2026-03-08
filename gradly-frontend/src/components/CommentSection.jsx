@@ -61,8 +61,8 @@ export default function CommentSection({ postId, initialCount = 0 }) {
                 id={`toggle-comments-${postId}`}
                 onClick={() => setOpen(!open)}
                 className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition-all duration-200 font-medium ${open
-                        ? 'text-primary bg-primary/10'
-                        : 'text-text-muted hover:text-text hover:bg-surface-hover'
+                    ? 'text-primary bg-primary/10'
+                    : 'text-text-muted hover:text-text hover:bg-surface-hover'
                     }`}
             >
                 <MessageCircle className="w-4 h-4" />
@@ -118,15 +118,12 @@ export default function CommentSection({ postId, initialCount = 0 }) {
                             {comments.map((c, idx) => (
                                 <div key={c.id || idx} className="flex gap-2 animate-fade-in">
                                     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/30 to-surface-elevated border border-border flex items-center justify-center flex-shrink-0 text-xs font-bold text-primary">
-                                        {(c.authorId || c.userId || c.author || 'U')
-                                            .toString()
-                                            .charAt(0)
-                                            .toUpperCase()}
+                                        {(c.userName || c.authorName || 'U').charAt(0).toUpperCase()}
                                     </div>
                                     <div className="flex-1 bg-surface-elevated rounded-xl px-3 py-2 border border-border-subtle">
                                         <div className="flex items-center justify-between mb-0.5">
                                             <span className="text-xs font-semibold text-text">
-                                                {c.authorName || c.author || `User ${c.authorId || c.userId || ''}`}
+                                                {c.userName || c.authorName || 'Unknown User'}
                                             </span>
                                             <span className="text-xs text-text-muted">{formatTime(c.createdAt)}</span>
                                         </div>

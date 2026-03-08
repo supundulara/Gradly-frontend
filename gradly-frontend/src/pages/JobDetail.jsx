@@ -135,10 +135,10 @@ export default function JobDetail() {
                                 <span>Posted {formatDate(job.createdAt)}</span>
                             </div>
                         )}
-                        {job.postedBy && (
+                        {(job.postedByName || job.postedBy) && (
                             <div className="flex items-center gap-2 text-sm text-text-secondary">
                                 <User className="w-4 h-4 text-text-muted flex-shrink-0" />
-                                <span>By {job.postedBy}</span>
+                                <span>By {job.postedByName || job.postedBy}</span>
                             </div>
                         )}
                     </div>

@@ -110,7 +110,7 @@ export default function JobCard({ job, appliedJobIds = [], onApplied }) {
             <div className="flex items-center justify-between pt-3 border-t border-border-subtle gap-2">
                 {/* Posted by */}
                 <span className="text-xs text-text-muted">
-                    {job.postedBy ? `Posted by ${job.postedBy}` : ''}
+                    {job.postedByName ? `Posted by ${job.postedByName}` : ''}
                 </span>
 
                 <div className="flex items-center gap-2">

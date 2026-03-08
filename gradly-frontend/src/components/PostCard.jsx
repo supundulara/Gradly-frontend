@@ -83,12 +83,9 @@ export default function PostCard({ post, onDelete }) {
         }
     };
 
-    const authorInitial = (post.authorId || post.authorName || post.author || 'U')
-        .toString()
-        .charAt(0)
-        .toUpperCase();
-
-    const authorDisplay = post.authorName || post.author || `User ${post.authorId || ''}`;
+    // Prefer server-provided name; fall back gracefully — never show raw IDs
+    const authorDisplay = post.authorName || post.author || 'Unknown User';
+    const authorInitial = authorDisplay.charAt(0).toUpperCase();
 
     return (
         <article className="card card-hover p-5 animate-slide-up relative group">
@@ -165,8 +162,8 @@ export default function PostCard({ post, onDelete }) {
                     onClick={handleLike}
                     disabled={likeLoading}
                     className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition-all duration-200 font-medium ${liked
-                            ? 'text-red-400 bg-red-500/10 hover:bg-red-500/20'
-                            : 'text-text-muted hover:text-red-400 hover:bg-red-500/5'
+                        ? 'text-red-400 bg-red-500/10 hover:bg-red-500/20'
+                        : 'text-text-muted hover:text-red-400 hover:bg-red-500/5'
                         }`}
                 >
                     <Heart
