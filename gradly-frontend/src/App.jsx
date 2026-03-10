@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ChatProvider } from './context/ChatContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Feed from './pages/Feed';
@@ -11,6 +12,7 @@ import Events from './pages/Events';
 import EventDetail from './pages/EventDetail';
 import CreateEvent from './pages/CreateEvent';
 import Notifications from './pages/Notifications';
+import Messages from './pages/Messages';
 
 // Must be authenticated
 function ProtectedRoute({ children }) {
@@ -63,6 +65,9 @@ function AppRoutes() {
       {/* Notifications */}
       <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
 
+      {/* Messages */}
+      <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -73,7 +78,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <ChatProvider>
+          <AppRoutes />
+        </ChatProvider>
       </AuthProvider>
     </BrowserRouter>
   );

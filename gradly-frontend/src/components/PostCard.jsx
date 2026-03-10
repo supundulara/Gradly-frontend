@@ -1,14 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Heart, Trash2, MoreHorizontal, Clock, User } from 'lucide-react';
+import { Heart, Trash2, MoreHorizontal, Clock, User, MessageSquare } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import CommentSection from './CommentSection';
+import { resolveDate } from '../context/ChatContext';
 import api from '../api/axios';
 
 function formatTime(ts) {
     if (!ts) return '';
-    const d = new Date(ts);
+    const d = resolveDate(ts);
+    if (!d || isNaN(d.getTime())) return '';
     const now = new Date();
     const diff = Math.floor((now - d) / 1000);
-    if (diff < 60) return 'just now';
+    if (diff < 60) return 'Just now';
     if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
     if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
     if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
@@ -16,6 +20,10 @@ function formatTime(ts) {
 }
 
 export default function PostCard({ post, onDelete }) {
+    const { userId } = useAuth();
+    const navigate = useNavigate();
+    const [messageLoading, setMessageLoading] = useState(false);
+    
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
     const [likeLoading, setLikeLoading] = useState(false);
@@ -83,6 +91,25 @@ export default function PostCard({ post, onDelete }) {
         }
     };
 
+    const handleMessageClick = async () => {
+        const targetUserId = post.authorId || post.userId;
+        if (!targetUserId || targetUserId === userId) return;
+        
+        setMessageLoading(true);
+        try {
+            const res = await api.post('/conversations', {
+                receiverId: targetUserId
+            }, {
+                headers: { 'X-User-Id': userId }
+            });
+            navigate('/messages', { state: { activeConvId: res.data.id } });
+        } catch (err) {
+            console.error('Failed to start or retrieve conversation:', err);
+        } finally {
+            setMessageLoading(false);
+        }
+    };
+
     // Prefer server-provided name; fall back gracefully — never show raw IDs
     const authorDisplay = post.authorName || post.author || 'Unknown User';
     const authorInitial = authorDisplay.charAt(0).toUpperCase();
@@ -106,17 +133,36 @@ export default function PostCard({ post, onDelete }) {
                     </div>
                 </div>
 
-                {/* Post menu */}
-                <div className="relative">
+                {/* Post menu & Message button */}
+                <div className="relative flex items-center gap-1">
                     {!showDeleteConfirm ? (
-                        <button
-                            id={`post-menu-${post.id}`}
-                            onClick={() => setShowDeleteConfirm(true)}
-                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-text-muted hover:text-error hover:bg-red-500/5 transition-all duration-200"
-                            title="Delete post"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </button>
+                        <>
+                            {/* Message Button if not my post */}
+                            {(post.authorId || post.userId) && (post.authorId || post.userId) !== userId && (
+                                <button
+                                    onClick={handleMessageClick}
+                                    disabled={messageLoading}
+                                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-all duration-200"
+                                    title="Message Author"
+                                >
+                                    {messageLoading ? (
+                                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <MessageSquare className="w-4 h-4" />
+                                    )}
+                                </button>
+                            )}
+                            
+                            {/* Delete Button */}
+                            <button
+                                id={`post-menu-${post.id}`}
+                                onClick={() => setShowDeleteConfirm(true)}
+                                className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-text-muted hover:text-error hover:bg-red-500/5 transition-all duration-200"
+                                title="Delete post"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </>
                     ) : (
                         <div className="flex items-center gap-1.5 pop-in">
                             <span className="text-xs text-text-muted">Delete?</span>

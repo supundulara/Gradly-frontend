@@ -1,9 +1,10 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Zap, Rss, BriefcaseBusiness, ClipboardList, PlusCircle, CalendarDays } from 'lucide-react';
+import { useChat } from '../context/ChatContext';
+import { LogOut, Zap, Rss, BriefcaseBusiness, ClipboardList, PlusCircle, CalendarDays, MessageSquare } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 
-function NavLink({ to, icon: Icon, label, id }) {
+function NavLink({ to, icon: Icon, label, id, hasDot }) {
     const { pathname } = useLocation();
     const active = pathname === to || (to !== '/' && pathname.startsWith(to + '/')) || pathname === to;
     return (
@@ -15,7 +16,10 @@ function NavLink({ to, icon: Icon, label, id }) {
                     : 'text-text-secondary hover:text-text hover:bg-surface-hover'
                 }`}
         >
-            <Icon className="w-3.5 h-3.5" />
+            <div className="relative">
+                <Icon className="w-3.5 h-3.5" />
+                {hasDot && <span className="absolute -top-[3px] -right-[3px] w-2 h-2 rounded-full bg-primary border-[1.5px] border-surface shadow-sm"></span>}
+            </div>
             <span className="hidden sm:inline">{label}</span>
         </Link>
     );
@@ -23,6 +27,7 @@ function NavLink({ to, icon: Icon, label, id }) {
 
 export default function Navbar() {
     const { isAuthenticated, logout, role, canPostJob, canApplyJob } = useAuth();
+    const { hasAnyUnread } = useChat();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -55,6 +60,7 @@ export default function Navbar() {
                         <NavLink to="/feed" id="nav-feed" icon={Rss} label="Feed" />
                         <NavLink to="/jobs" id="nav-jobs" icon={BriefcaseBusiness} label="Jobs" />
                         <NavLink to="/events" id="nav-events" icon={CalendarDays} label="Events" />
+                        <NavLink to="/messages" id="nav-messages" icon={MessageSquare} label="Messages" hasDot={hasAnyUnread} />
                         {canApplyJob && (
                             <NavLink to="/applications" id="nav-applications" icon={ClipboardList} label="Applied" />
                         )}
