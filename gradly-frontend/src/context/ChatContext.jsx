@@ -68,7 +68,8 @@ export function ChatProvider({ children }) {
 
         conversations.forEach(conv => {
             if (!socketsRef.current[conv.id]) {
-                const ws = new WebSocket(`ws://localhost:8080/ws/conversations/${conv.id}`);
+                const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080';
+                const ws = new WebSocket(`${wsUrl}/ws/conversations/${conv.id}`);
                 socketsRef.current[conv.id] = ws;
 
                 ws.onmessage = (event) => {
