@@ -8,7 +8,9 @@ import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { ChatProvider, useChat } from './src/context/ChatContext';
 import { colors } from './src/theme/colors';
+import { TouchableOpacity, Text } from 'react-native';
 
 // Auth screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -23,9 +25,38 @@ import EventsScreen from './src/screens/EventsScreen';
 import EventDetailScreen from './src/screens/EventDetailScreen';
 import CreateEventScreen from './src/screens/CreateEventScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
+import MessagesListScreen from './src/screens/MessagesListScreen';
+import ChatScreen from './src/screens/ChatScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+// Custom Global AppHeader Components
+function GlobalHeaderLeft() {
+    return (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="flash" size={16} color="#000" />
+            </View>
+            <Text style={{ marginLeft: 8, fontSize: 18, fontWeight: 'bold', color: '#fff', letterSpacing: -0.3 }}>
+                Grad<Text style={{ color: colors.primary }}>ly</Text>
+            </Text>
+        </View>
+    );
+}
+
+function GlobalHeaderRight() {
+    const { logout } = useAuth();
+    return (
+        <TouchableOpacity 
+            onPress={logout} 
+            style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingHorizontal: 8, paddingVertical: 6, borderRadius: 8 }}
+        >
+            <Ionicons name="log-out-outline" size={15} color={colors.error} />
+            <Text style={{ marginLeft: 4, color: colors.error, fontSize: 12, fontWeight: '600' }}>Logout</Text>
+        </TouchableOpacity>
+    );
+}
 
 const screenOptions = {
     headerStyle: { backgroundColor: colors.surface },
@@ -33,6 +64,9 @@ const screenOptions = {
     headerTitleStyle: { fontWeight: '700' },
     headerShadowVisible: false,
     contentStyle: { backgroundColor: colors.background },
+    headerLeft: () => <GlobalHeaderLeft />,
+    headerRight: () => <GlobalHeaderRight />,
+    headerTitle: '', // Hides default title to make space for custom header layout
 };
 
 function JobsStack() {
@@ -48,14 +82,24 @@ function JobsStack() {
 function EventsStack() {
     return (
         <Stack.Navigator screenOptions={screenOptions}>
-            <Stack.Screen name="EventsList" component={EventsScreen} options={{ title: 'Events' }} />
-            <Stack.Screen name="EventDetail" component={EventDetailScreen} options={{ title: 'Event Details' }} />
-            <Stack.Screen name="CreateEvent" component={CreateEventScreen} options={{ title: 'Create Event' }} />
+            <Stack.Screen name="EventsList" component={EventsScreen} />
+            <Stack.Screen name="EventDetail" component={EventDetailScreen} options={{ headerTitle: 'Event Details', headerLeft: undefined, headerRight: undefined }} />
+            <Stack.Screen name="CreateEvent" component={CreateEventScreen} options={{ headerTitle: 'Create Event', headerLeft: undefined, headerRight: undefined }} />
+        </Stack.Navigator>
+    );
+}
+
+function MessagesStack() {
+    return (
+        <Stack.Navigator screenOptions={screenOptions}>
+            <Stack.Screen name="MessagesList" component={MessagesListScreen} />
+            <Stack.Screen name="Chat" component={ChatScreen} options={{ headerTitle: 'Chat', headerLeft: undefined, headerRight: undefined }} />
         </Stack.Navigator>
     );
 }
 
 function MainTabs() {
+    const { hasAnyUnread } = useChat();
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -64,6 +108,7 @@ function MainTabs() {
                         Feed: focused ? 'newspaper' : 'newspaper-outline',
                         Jobs: focused ? 'briefcase' : 'briefcase-outline',
                         Events: focused ? 'calendar' : 'calendar-outline',
+                        Messages: focused ? 'chatbubbles' : 'chatbubbles-outline',
                         Notifications: focused ? 'notifications' : 'notifications-outline',
                     };
                     return <Ionicons name={icons[route.name]} size={size} color={color} />;
@@ -82,10 +127,20 @@ function MainTabs() {
                 headerShadowVisible: false,
             })}
         >
-            <Tab.Screen name="Feed" component={FeedScreen} options={{ title: 'Feed' }} />
+            <Tab.Screen name="Feed" component={FeedScreen} options={{ headerTitle: '', headerLeft: () => <GlobalHeaderLeft />, headerRight: () => <GlobalHeaderRight /> }} />
             <Tab.Screen name="Jobs" component={JobsStack} options={{ headerShown: false, title: 'Jobs' }} />
             <Tab.Screen name="Events" component={EventsStack} options={{ headerShown: false, title: 'Events' }} />
-            <Tab.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifications' }} />
+            <Tab.Screen 
+                name="Messages" 
+                component={MessagesStack} 
+                options={{ 
+                    headerShown: false, 
+                    title: 'Messages',
+                    tabBarBadge: hasAnyUnread ? '' : undefined,
+                    tabBarBadgeStyle: { backgroundColor: colors.primary, minWidth: 10, minHeight: 10 }
+                }} 
+            />
+            <Tab.Screen name="Notifications" component={NotificationsScreen} options={{ headerTitle: '', headerLeft: () => <GlobalHeaderLeft />, headerRight: () => <GlobalHeaderRight /> }} />
         </Tab.Navigator>
     );
 }
@@ -123,7 +178,9 @@ export default function App() {
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <AuthProvider>
-                <RootNavigator />
+                <ChatProvider>
+                    <RootNavigator />
+                </ChatProvider>
             </AuthProvider>
         </GestureHandlerRootView>
     );
