@@ -11,13 +11,13 @@ function NavLink({ to, icon: Icon, label, id, hasDot }) {
         <Link
             id={id}
             to={to}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${active
+            className={`flex items-center gap-2 px-3 py-2 sm:px-4 rounded-xl text-sm font-medium transition-all duration-200 ${active
                     ? 'text-primary bg-primary/10'
                     : 'text-text-secondary hover:text-text hover:bg-surface-hover'
                 }`}
         >
             <div className="relative">
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-4 h-4" />
                 {hasDot && <span className="absolute -top-[3px] -right-[3px] w-2 h-2 rounded-full bg-primary border-[1.5px] border-surface shadow-sm"></span>}
             </div>
             <span className="hidden sm:inline">{label}</span>
@@ -43,13 +43,13 @@ export default function Navbar() {
 
     return (
         <header className="fixed top-0 left-0 right-0 z-50 glass navbar-blur border-b border-border">
-            <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+            <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
                 {/* Logo */}
-                <Link to="/feed" className="flex items-center gap-2 group flex-shrink-0">
-                    <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center group-hover:shadow-glow transition-all duration-200">
-                        <Zap className="w-4 h-4 text-black fill-current" />
+                <Link to="/feed" className="flex items-center gap-2.5 group flex-shrink-0 mr-4">
+                    <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center group-hover:shadow-[0_0_15px_rgba(var(--primary),0.5)] transition-all duration-200">
+                        <Zap className="w-5 h-5 text-black fill-current" />
                     </div>
-                    <span className="font-bold text-base tracking-tight hidden sm:inline">
+                    <span className="font-bold text-xl tracking-tight hidden sm:inline text-text">
                         Grad<span className="text-primary">ly</span>
                     </span>
                 </Link>

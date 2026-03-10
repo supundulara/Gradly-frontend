@@ -213,7 +213,7 @@ export default function Messages() {
     };
 
     return (
-        <main className="max-w-6xl mx-auto px-4 pt-20 pb-8 flex h-screen">
+        <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8 flex h-screen">
             <div className="flex w-full bg-surface glass rounded-2xl border border-border shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 120px)' }}>
                 
                 {/* Left Sidebar - Conversation List */}
