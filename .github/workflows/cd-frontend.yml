@@ -38,7 +38,7 @@ jobs:
             # Build and restart the docker containers
             # -d: Detached mode: Run containers in the background
             # --build: Build images before starting containers
-            docker compose up -d --build
+            docker-compose up -d --build
 
             # Clean up dangling images to free up space
             docker image prune -f
