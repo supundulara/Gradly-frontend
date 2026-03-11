@@ -28,16 +28,20 @@ jobs:
             # Ensure the repository is already cloned on the server at this path
             cd /home/${{ secrets.EC2_USER }}/Gradly-frontend/gradly-frontend
 
+
             # Fetch the latest changes from origin and hard reset to main to bypass merge conflicts
             git fetch origin
             git reset --hard origin/main
 
+            # Restore the .env file
+            cp /tmp/gradly-frontend-env-backup .env || true
             # Export environment variables for the build (optional, alternatively use a .env file on the server)
             # We already have a .env file on the server containing VITE_API_URL and VITE_WS_URL.
             
             # Build and restart the docker containers
-            # -d: Detached mode: Run containers in the background
-            # --build: Build images before starting containers
+            # Stop and remove existing containers first to prevent 'ContainerConfig' errors 
+            # with older versions of docker-compose on the EC2 instance
+            docker-compose down
             docker-compose up -d --build
 
             # Clean up dangling images to free up space
