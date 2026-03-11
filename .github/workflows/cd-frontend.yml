@@ -26,7 +26,7 @@ jobs:
           script: |
             # Navigate to the project directory on your server
             # Ensure the repository is already cloned on the server at this path
-            cd /home/${{ secrets.EC2_USER }}/Gradly/gradly-frontend
+            cd /home/${{ secrets.EC2_USER }}/Gradly-frontend/gradly-frontend
 
             # Fetch the latest changes from origin and hard reset to main to bypass merge conflicts
             git fetch origin
